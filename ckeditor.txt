@@ -89,3 +89,10 @@
         form = EditForm()
         form.body.data = get_article_from_somewhere()
         return render_template('edit.html', form=form)
+
+* Note:
+-> the data from the CKEditor is saved as HTML. It contains all the structure and styling of the blog post.
+    In order for this structure to be reflected when you go to the template page you need to add "Jinja safe() filter"
+    This makes sure that when Jinja renders the template it doesn't treat the HTML as text
+-> To apply jinja filter, you need the pipe symbol "|" and this goes between the Jinja expression and Jinja filter
+    e.g. {{ Jinja Expression | Jinja Filter }}
