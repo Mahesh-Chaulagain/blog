@@ -1,0 +1,81 @@
+# why relationship?
+-> need to create relationship between the User table and the BlogPost table to link them together. so we can see which
+    BlogPosts a user has written or see which User is the author of a particular BlogPost.
+-> If we were just writing Python code, you could imagine creating a "User" object which has a property called "posts"
+   that contains a list of BlogPost objects
+e.g.
+    class User:
+            def __init__(self, name, email, password):
+                self.name = name
+                self.email = email
+                self.password = password
+                self.post = []
+    class BlogPost:
+            def __init__(self, title, subtitle, body):
+                self.title = title
+                self.subtitle = subtitle
+                self.body = body
+
+    new_user = User(
+            name="Ram",
+            email="ram@gmail.com",
+            password=12345,
+            posts=[
+                  BlogPost(
+                        title="life of catcus",
+                        subtitle="so goof",
+                        body="something ...
+                       )
+                  ]
+            )
+
+    This would make it easy to find all the BlogPosts a particular user has written. But what about the other way around?
+    How can you find the author of a particular BlogPost object? This is why a database is used instead of just simple
+    python data structures.
+
+-> In relational databases such as SQLite, MySQL or Postgresql we're able to define a relationship between tables using a
+    "ForeignKey" and a "relationship()" method.
+
+# Relationship Patterns:
+1. One To Many
+2. Many To One
+3. One To One
+4. Many To Many
+
+# One To Many
+-> A one-to-many relationship places a foreign key on the child table referencing the parent.
+-> relationship() is then specified on the parent, as referencing a collection of items represented by the child
+i.e.
+    class Parent(Base):
+        __tablename__ = 'parent'
+        id = Column(Integer, primary_key=True)
+        children = relationship("Child")
+
+    class Child(Base):
+        __tablename__ = 'child'
+        id = Column(Integer, primary_key=True)
+        parent_id = Column(Integer, ForeignKey('parent.id'))
+
+-> To establish a bidirectional relationship in one-to-many, where the "reverse" side is a many to one, specify an
+    additional relationship() and connect the two using the "relationship.back_populates" parameter
+i.e.
+    class Parent(Base):
+        __tablename__ = 'parent'
+        id = Column(Integer, primary_key=True)
+        children = relationship("Child", back_populates="parent")
+
+    class Child(Base):
+        __tablename__ = 'child'
+        id = Column(Integer, primary_key=True)
+        parent_id = Column(Integer, ForeignKey('parent.id'))
+        parent = relationship("Parent", back_populates="children")
+
+   * child will get a "parent" attribute with many-to-one semantics
+
+-> Alternatively, the relationship.backref option may be used on a single relationship() instead of using
+    relationship.back_populates
+i.e.
+    class Parent(Base):
+        __tablename__ = 'parent'
+        id = Column(Integer, primary_key=True)
+        children = relationship("Child", backref="parent")
